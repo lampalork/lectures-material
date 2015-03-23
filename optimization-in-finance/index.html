@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Optimization in Finance</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Optimization in Finance">
+  <meta name="author" content="Bertrand Le Nezet">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="libraries/widgets/bootstrap/css/bootstrap.css"></link>
+<link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>Optimization in Finance</h1>
+    <h2>Maximum Entropy Distribution of an Asset Inferrred from Option Prices</h2>
+    <p>Bertrand Le Nezet<br/></p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Problem statement</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li>Illiquid Equity option markets</li>
+<li>Only 2/3 quotes per week</li>
+<li>Banks must mark to market their books every day</li>
+<li>Based on what volatility surface?</li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Objective</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li>Use prior information and constraints to find posterior</li>
+<li>requires no interpolation / extroplation </li>
+<li>density with </li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Kullback-Leibler Relative entropy</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li>In Information Theory, Shannon defines the entropy as a measure of unpredictability of information content</li>
+<li>the KL relative entropy (or KL divergence) is a non-suymetric mesure of the difference between two probability distribution P and Q. </li>
+<li>\(D_{KL}(P\Vert Q)=\int_{-\infty}^{\infty}p(x)\ln\frac{p(x)}{q(x)}dx\)</li>
+<li>Properties:</li>
+<li>KL is equal to zero if P and Q are identical</li>
+<li>KL relative entropy is always positive</li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Principle of Minimum Cross Entropy (PMXE)</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li>In Bayesian statistics the KL divergence can be used as a measure of the information gain in moving from a prior distribution to a posterior distribution. If some new fact Y = y is discovered, it can be used to update the probability distribution for X from p(x | I) to a new posterior probability distribution p(x | y,I) using Bayes&#39; theorem:</li>
+<li>Relative Entropy for various P</li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Examples of PMXE</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="assets/fig/unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Formulating the Optimization problem</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>We have one prior probability density function \(q(x)\)</p>
+
+<p>We have \(m\) price constraints: \(\forall i=1,2,..m\; d_{i}=D(T)\mathbb{E}_{\mathbb{Q}}\left[c_{i}(X_{T})\right]\)
+where</p>
+
+<ul>
+<li>\(D(T)=e^{-(r-q)T}\) represents the discount factor</li>
+<li>\(c_{i}(X_{t})\) denotes the $i$th option pay-off function at expiry
+depenent only on the asset value at expiry</li>
+<li>$d_{i}$is the corresponding option price</li>
+<li>\(r\) risk-free rate for \(T\)</li>
+<li>\(q\) dividend yield</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Formulating the Optimization problem (2)</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Minimize \(S(p,q)=\int_{-\infty}^{\infty}p(x)\log\left[\frac{p(x)}{q(x)}\right]dx\)</p>
+
+<p>Subject to 2 constraints:</p>
+
+<ol>
+<li>\(\int_{0}^{\infty}p(x)dx=1\)</li>
+<li>\(\forall i=1,2,..m\;\mathbb{E}\left[c_{i}(X)\right]=\int_{0}^{\infty}p(x)\; c_{i}(x)dx=ci\)</li>
+</ol>
+
+<p>This is a standard constrained optimization problem which solved by using the method of Lagrange which transforms a problem in n variable and m constraints into an unconstrainted optimization with n+m variables.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Objective function</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>la lal al la </p>
+
+<p>\(H(p)=-\int_{0}^{\infty}p(x)\log\left[\frac{p(x)}{q(x)}\right]dx+(1+\lambda_{0})\int_{0}^{\infty}p(x)dx+\sum_{i=1}^{m}\lambda_{i}\int_{0}^{\infty}p(x)\; c_{i}(x)dx\)</p>
+
+<p>From standard calculus, we know that the minimum \(\lambda^{*}=(\lambda_{0}^{*},\ldots,\lambda_{M}^{*})\)
+is reached when:</p>
+
+<ul>
+<li>the gradient (vector of derivatives)\(\delta H\) is equal to zero:
+\(\delta H(\lambda^{*})=\int_{0}^{\infty}\left[-\log\left[\frac{p(x)}{q(x)}\right]+\lambda_{0}+\sum_{i=1}^{m}\lambda_{i}c_{i}(x)\right]\delta p(x)dx=0\)
+(necessary condition)</li>
+<li>the hessian (matrix of second derivatives) is positive definite (sufficient
+condition)</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Objective function solution</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>This leads immediately to the following explicit representation of
+the MED:</p>
+
+<p>\(p(x)=\frac{q(x)}{\mu}\exp\left(\sum_{i=1}^{m}\lambda_{i}c_{i}(x)\right)\),
+\(\mu=\int_{0}^{\infty}q(x)\exp\left(\sum_{i=1}^{m}\lambda_{i}c_{i}(x)\right)dx\)</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <article data-timings="">
+    
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Numerical implementation</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Here are the steps:</p>
+
+<ol>
+<li>Market data snapping (Google Finance JSON API)</li>
+<li>Data cleaning (expiry date to time, mid calculation)</li>
+<li>Only take price for call with strike &gt; spot and put with strike &lt; spot (put call parity)</li>
+<li>Convert price to implied volatility to plot volatility smile</li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Option quotes</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="google-finance-GOOG.OQ.png" alt=""></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Volatility smile</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="GOOG.OQ-implied-volatility-surface.png" alt=""></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Asset distribution for multiple expiry dates</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="asset-dist-multi-expiry.png" alt=""></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Constant volatility</h2>
+  </hgroup>
+  <article data-timings="">
+    <table><thead>
+<tr>
+<th align="right">strikePct</th>
+<th align="right">strikeAbs</th>
+<th align="right">price</th>
+<th align="right">impvol</th>
+</tr>
+</thead><tbody>
+<tr>
+<td align="right">0.6</td>
+<td align="right">336</td>
+<td align="right">0.00</td>
+<td align="right">0.25</td>
+</tr>
+<tr>
+<td align="right">0.7</td>
+<td align="right">392</td>
+<td align="right">0.00</td>
+<td align="right">0.25</td>
+</tr>
+<tr>
+<td align="right">0.8</td>
+<td align="right">448</td>
+<td align="right">0.25</td>
+<td align="right">0.25</td>
+</tr>
+<tr>
+<td align="right">0.9</td>
+<td align="right">504</td>
+<td align="right">4.11</td>
+<td align="right">0.25</td>
+</tr>
+<tr>
+<td align="right">1.0</td>
+<td align="right">560</td>
+<td align="right">23.24</td>
+<td align="right">0.25</td>
+</tr>
+<tr>
+<td align="right">1.1</td>
+<td align="right">616</td>
+<td align="right">5.82</td>
+<td align="right">0.25</td>
+</tr>
+<tr>
+<td align="right">1.2</td>
+<td align="right">672</td>
+<td align="right">0.96</td>
+<td align="right">0.25</td>
+</tr>
+<tr>
+<td align="right">1.3</td>
+<td align="right">728</td>
+<td align="right">0.11</td>
+<td align="right">0.25</td>
+</tr>
+<tr>
+<td align="right">1.4</td>
+<td align="right">784</td>
+<td align="right">0.01</td>
+<td align="right">0.25</td>
+</tr>
+</tbody></table>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Maximum Entropy Distribution</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="constant_vol_asset_dist.png" alt=""></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Volatility smile</h2>
+  </hgroup>
+  <article data-timings="">
+    
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Conclusion</h2>
+  </hgroup>
+  <article data-timings="">
+    
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Read-And-Delete</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li>Edit YAML front matter</li>
+<li>Write using R Markdown</li>
+<li>Use an empty line followed by three dashes to separate slides!</li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <article data-timings="">
+    
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Problem statement'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Objective'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Kullback-Leibler Relative entropy'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Principle of Minimum Cross Entropy (PMXE)'>
+         4
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=5 title='Examples of PMXE'>
+         5
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=6 title='Formulating the Optimization problem'>
+         6
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=7 title='Formulating the Optimization problem (2)'>
+         7
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=8 title='Objective function'>
+         8
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=9 title='Objective function solution'>
+         9
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=10 title=''>
+         10
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=11 title='Numerical implementation'>
+         11
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=12 title='Option quotes'>
+         12
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=13 title='Volatility smile'>
+         13
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=14 title='Asset distribution for multiple expiry dates'>
+         14
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=15 title='Constant volatility'>
+         15
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=16 title='Maximum Entropy Distribution'>
+         16
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=17 title='Volatility smile'>
+         17
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=18 title='Conclusion'>
+         18
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=19 title='Read-And-Delete'>
+         19
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=20 title=''>
+         20
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  <script src="libraries/widgets/bootstrap/js/bootstrap.min.js"></script>
+<script src="libraries/widgets/bootstrap/js/bootbox.min.js"></script>
+
+  <!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+      }
+    });
+  </script>
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script> -->
+  <script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<script>  
+  $(function (){ 
+    $("#example").popover(); 
+    $("[rel='tooltip']").tooltip(); 
+  });  
+  </script>  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>

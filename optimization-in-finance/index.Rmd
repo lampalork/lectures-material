@@ -1,0 +1,310 @@
+---
+title       : Optimization in Finance
+subtitle    : Maximum Entropy Distribution of an Asset Inferrred from Option Prices
+author      : Bertrand Le Nezet
+job         : 
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : [mathjax,bootstrap] # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {selfcontained, standalone, draft}
+knit        : slidify::knit2slides
+---
+
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+library(knitr)
+```
+
+## Problem statement
+
+1. Illiquid Equity option markets
+2. Only 2/3 quotes per week
+3. Banks must mark to market their books every day
+4. Based on what volatility surface?
+
+--- .class #id 
+
+## Objective
+
+1. Use prior information and constraints to find posterior
+2. requires no interpolation / extroplation 
+3. density with 
+
+--- .class #id
+
+## Kullback-Leibler Relative entropy
+
+1. In Information Theory, Shannon defines the entropy as a measure of unpredictability of information content
+2. the KL relative entropy (or KL divergence) is a non-suymetric mesure of the difference between two probability distribution P and Q. 
+3. $D_{KL}(P\Vert Q)=\int_{-\infty}^{\infty}p(x)\ln\frac{p(x)}{q(x)}dx$
+4. Properties:
+- KL is equal to zero if P and Q are identical
+- KL relative entropy is always positive
+
+--- .class #id 
+
+## Principle of Minimum Cross Entropy (PMXE)
+
+1. In Bayesian statistics the KL divergence can be used as a measure of the information gain in moving from a prior distribution to a posterior distribution. If some new fact Y = y is discovered, it can be used to update the probability distribution for X from p(x | I) to a new posterior probability distribution p(x | y,I) using Bayes' theorem:
+2. Relative Entropy for various P
+
+--- .class #id 
+
+## Examples of PMXE
+
+```{r, echo = FALSE, message=FALSE, fig.width=9, fig.height = 6, fig.align='center'}
+library(ggplot2)
+RelativeEntropy = function (P,Q) {
+  xentropy = -1
+  if (length(P) == length(Q)) {
+    xentropy = 0
+    for (i in seq(1,length(P)))
+      xentropy = xentropy + P[i] * log(P[i]/Q[i])
+  }
+  else {
+    warning("P and Q do not have same number of elements")
+  }
+  return(xentropy)
+}
+
+
+X = seq(-5,5,by=0.001)
+P1 = sapply(X,function (x) dnorm(x, mean=0,sd=sqrt(0.9)))
+P2 = sapply(X,function (x) dnorm(x, mean=0,sd=sqrt(1.5)))
+P3 = sapply(X,function (x) dt(x,df=1))
+P4 = sapply(X,function (x) dunif(x,min=-5,5))
+Q = sapply(X,function (x) dnorm(x, mean=0,sd=1))
+
+
+data.df = data.frame(
+  x = rep(X,4),
+  q = rep(Q,4),
+  p = c(P1,P2,P3,P4),
+  dist = factor(rep(c("P1","P2","P3","P4"),rep(length(Q),4)))
+)
+
+distribution_names <- list(
+  'P1'="Norm(meam=0,var=0.9)",
+  'P2'="Norm(mean=0,var=1.5)",
+  'P3'="T(df=1)",
+  'P4'="Unif(min=-5,max=-5)"
+)
+
+distribution_labeller <- function(variable,value){
+  return(distribution_names[value])
+}
+
+annotation.df = data.frame(
+  x = rep(0,4),
+  q = rep(0,4),
+  p = rep(0,4),
+  dist = factor(c("P1","P2","P3","P4")),
+  lab = round(unlist(lapply(list(P1,P2,P3,P4),RelativeEntropy, Q = Q)),2)
+)
+
+
+# plot distro
+g = ggplot(data.df, aes(x = x, group = dist))
+g = g + geom_line(aes(y = p, colour="Posterior"))
+g = g + geom_line(aes(y = q, colour="Prior"))
+g = g + facet_grid(.~dist,labeller=distribution_labeller) 
+g = g + geom_text(data = annotation.df, aes(y = p, label =lab) ) 
+g = g + scale_colour_manual("", values = c("Posterior"="red", "Prior"="blue"))
+g = g + theme(
+  panel.grid.major = element_blank(), 
+  panel.grid.minor = element_blank(),               
+  panel.background = element_blank(), 
+  axis.line = element_line(colour = "black"))
+plot(g)
+```
+
+--- .class #id 
+
+## Formulating the Optimization problem
+
+We have one prior probability density function $q(x)$
+
+We have $m$ price constraints: $\forall i=1,2,..m\; d_{i}=D(T)\mathbb{E}_{\mathbb{Q}}\left[c_{i}(X_{T})\right]$
+where
+- $D(T)=e^{-(r-q)T}$ represents the discount factor
+- $c_{i}(X_{t})$ denotes the $i$th option pay-off function at expiry
+depenent only on the asset value at expiry
+- $d_{i}$is the corresponding option price
+- $r$ risk-free rate for $T$
+- $q$ dividend yield
+
+--- .class #id 
+
+## Formulating the Optimization problem (2)
+
+Minimize $S(p,q)=\int_{-\infty}^{\infty}p(x)\log\left[\frac{p(x)}{q(x)}\right]dx$
+
+Subject to 2 constraints:
+
+1. $\int_{0}^{\infty}p(x)dx=1$
+2. $\forall i=1,2,..m\;\mathbb{E}\left[c_{i}(X)\right]=\int_{0}^{\infty}p(x)\; c_{i}(x)dx=ci$
+
+This is a standard constrained optimization problem which solved by using the method of Lagrange which transforms a problem in n variable and m constraints into an unconstrainted optimization with n+m variables.
+
+--- .class #id 
+
+## Objective function
+
+la lal al la 
+
+$H(p)=-\int_{0}^{\infty}p(x)\log\left[\frac{p(x)}{q(x)}\right]dx+(1+\lambda_{0})\int_{0}^{\infty}p(x)dx+\sum_{i=1}^{m}\lambda_{i}\int_{0}^{\infty}p(x)\; c_{i}(x)dx$
+
+From standard calculus, we know that the minimum $\lambda^{*}=(\lambda_{0}^{*},\ldots,\lambda_{M}^{*})$
+is reached when:
+- the gradient (vector of derivatives)$\delta H$ is equal to zero:
+$\delta H(\lambda^{*})=\int_{0}^{\infty}\left[-\log\left[\frac{p(x)}{q(x)}\right]+\lambda_{0}+\sum_{i=1}^{m}\lambda_{i}c_{i}(x)\right]\delta p(x)dx=0$
+(necessary condition)
+- the hessian (matrix of second derivatives) is positive definite (sufficient
+condition)
+
+
+--- .class #id 
+
+## Objective function solution
+
+This leads immediately to the following explicit representation of
+the MED:
+
+$p(x)=\frac{q(x)}{\mu}\exp\left(\sum_{i=1}^{m}\lambda_{i}c_{i}(x)\right)$,
+$\mu=\int_{0}^{\infty}q(x)\exp\left(\sum_{i=1}^{m}\lambda_{i}c_{i}(x)\right)dx$
+
+
+--- .class #id 
+
+
+--- .class #id 
+
+## Numerical implementation
+
+Here are the steps:
+
+1. Market data snapping (Google Finance API)
+2. Data cleaning (expiry date to time, mid calculation)
+3. Only take price for call with strike > spot and put with strike < spot (put call parity)
+4. Convert price to implied volatility to plot volatility smile
+5. 
+
+--- .class #id 
+## Option quotes
+
+![](google-finance-GOOG.OQ.png)
+
+--- .class #id 
+## Volatility smile
+
+![](GOOG.OQ-implied-volatility-surface.png)
+
+--- .class #id 
+## Asset distribution vs. Volatility Smile
+
+
+--- .class #id 
+## Asset distribution for multiple expiry dates
+
+![](asset-dist-multi-expiry.png)
+
+--- .class #id 
+## Constant volatility
+
+```{r, echo = FALSE, message=FALSE}
+vol2price = function(moneyness,impvol,rate,S0,T) {
+  
+  strike = S0*moneyness
+  
+  echo = rep(1,length(impvol))
+  for (i in seq (1,length(impvol))) {
+    if (moneyness[i] < 1.0) {
+      echo[i] = -1 #OTM put if moneyness < 100%
+    }
+  }
+  
+  price = rep(NA,length(impvol))
+  if (length(impvol) !=0) {
+    for (i in seq (1,length(impvol))) {
+      indicator = echo[i]
+      d1 = (log(S0/strike[i])+rate*T+0.5*impvol[i]*impvol[i]*T)/(impvol[i]*sqrt(T))
+      d2 = d1 - impvol[i]*sqrt(T)
+      price[i] = indicator*(S0*pnorm(indicator*d1)-strike[i]*exp(-rate*T)*pnorm(indicator*d2))
+    }
+  }
+  
+  return(price)
+}
+
+S0 = 560.0
+SMin = 0*S0
+SMax = 3*S0
+dS = 1.0
+S = seq(SMin,SMax, by=dS)
+T = 2/12
+rate = 0.01
+strike = c(0.60,0.70,0.80,0.90,1.00,1.10,1.20,1.30,1.40)
+impvol = rep(0.25,length(strike))
+price = vol2price(strike,impvol,rate,S0,T)
+data.df = data.frame(strikePct=strike,strikeAbs=strike*S0,price=price,impvol=impvol)
+kable(data.df,digits=2)
+```
+
+--- .class #id 
+
+## Maximum Entropy Distribution
+
+![](constant_vol_asset_dist.png)
+
+```{r, echo = FALSE, message=FALSE}
+# lambda0 = rep(0,length(price)+1)
+# q = rep(1,length(S))/length(S)
+# res = PMXE(lambda0,S,strike,price,rate,T,S0,q)
+# #kable(res$sol)
+# p = res$pdf
+# data.df = data.frame(S=S,prob=p)
+# 
+# mu = sum(S*(p*dS))
+# sigma = sqrt(sum((S-mu)^2 * p*dS))
+# phi = sqrt(sigma^2 + mu^2)
+# mu_lnorm = log(mu^2/phi)
+# sigma_lnorm = sqrt(log(phi^2/mu^2))
+# 
+# g = ggplot(data.df)
+# g = g + geom_line(aes(x = S, y=prob, colour = "data"))
+# g = g + stat_function(fun = function(x) dlnorm(x,meanlog=mu_lnorm,sdlog=sigma_lnorm), size=1, alpha=0.5, aes(color='dlnorm'))
+# g = g + xlim(350,800)
+# g = g + ggtitle("Asset distribution with constant volatility")
+# g = g + xlab("Asset value")
+# g = g + ylab("Probability mass")
+# g = g + scale_color_manual("Legend",labels = c("data", "dlnorm"), values = c("blue", "black")) 
+# plot(g)
+```
+
+--- .class #id 
+
+## Volatility smile
+
+
+
+
+--- .class #id 
+
+
+## Conclusion
+
+--- .class #id 
+
+
+## Read-And-Delete
+
+1. Edit YAML front matter
+2. Write using R Markdown
+3. Use an empty line followed by three dashes to separate slides!
+
+--- .class #id 
+
+
+
+
+
