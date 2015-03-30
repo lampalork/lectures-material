@@ -1,7 +1,7 @@
 ---
 title       : Optimization in Finance
 subtitle    : Maximum Entropy Distribution of an Asset Inferrred from Option Prices
-author      : Bertrand Le Nezet
+author      : Bertrand Le Nezet / 30-Mar-2015
 job         : 
 framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
 highlighter : highlight.js  # {highlight.js, prettify, highlight}
@@ -26,7 +26,7 @@ knit        : slidify::knit2slides
 --- .class #id 
 ## GOOG.OQ Option quotes
  
-![](google-finance-GOOG.OQ2.png)
+![](google-finance-GOOG.OQ3.png)
 
 --- .class #id 
 ## Put-Call parity
@@ -38,15 +38,14 @@ Call option: $C(S,t)=N(d_{1})S-N(d_{2})Ke^{-r(T-t)}$
 
 Put Option: $P(S,t)=-N(-d_{1})S+N(-d_{2})Ke^{-r(T-t)}$
 
-
-Pu-Call parity: $C(t)+Ke^{-r(T-t)}=P(t)+S(t)$
+Put-Call parity: $C(t)+Ke^{-r(T-t)}=P(t)+S(t)$
 
 
 
 --- .class #id 
 ## Volatility smile
 
-![](Volatility_smile_putcall2.png)
+![](Volatility_smile_putcall3.png)
 
 --- .class #id 
 ## Cross Entropy Minimization algorithm
@@ -59,43 +58,51 @@ Subject to:
 
 1. A uniform distribution is used as a prior (non-informed prior)
 2. Integrability constraint
-2. The option prices used as constraints should be linearly independant
-3. Forward is also used as a constraint
+2. Option prices used as constraints should be linearly independant
+3. Forward is also used as a constraint (mean)
 4. Choice of asset step for the discretisation / boundaries
-5. The Lagrangian function is minimized using an optimization routine (Limited-memory Broyden-Fletcher-Goldfarb-Shanno)
+5. Lagrangian function is minimized using an optimization routine (Limited-memory Broyden-Fletcher-Goldfarb-Shanno)
 
 
 
 --- .class #id 
-## GOOG.OQ Asset distribution (1m/2m/3m/6m)
+## GOOG.OQ Asset distribution
 
-![](asset-dist-multi-expiry.png)
+![](asset-dist2.png)
+
+Pdf1: Asset distribution inferred from 9 option prices
+
+Pdf2: Asset distribution inferred from 1 option price
 
 --- .class #id 
 ## Asset distribution with constant volatility (25%)
 
 ![](constant_vol_asset_dist.png)
 
+Asset distribution inferred from 6 option prices (constant volatility)
+
 --- .class #id 
-## GOOG.OQ Volatility smile (from Asset distribution)
+## GOOG.OQ Volatility smile
 
 $c(K)=D(T)\int_{0}^{\infty}p(x)\;\left(x-K\right)^{+}dx$ 
 
 $p(K)=D(T)\int_{0}^{\infty}p(x)\;\left(K-x\right)^{+}dx$
-![](implied-volatility-surface.png)
-
---- .class #id 
-## Volatility smile (from Quotes)
-
-![](GOOG.OQ-implied-volatility-surface.png)
+![](implied-volatility-surface2.png)
 
 --- .class #id 
 ## Conclusion
 
 1. We have observed that assets distribution inferred from options prices are not log-normal (i.e. Volatility is not constant)  
-2. Principle of Minimum Cross-Entropy can be used to estimate the distribution of an asset without any assumptions (non-parametric approach)
+2. Principle of Minimum Cross-Entropy can be used to estimate the distribution of an asset without assuming a particular distribution shape or family of distribution (non-parametric approach)
 3. The algorithm is stable and fast
 4. This method can be used to perform implied volatility interpolation/extrapolation from only few quotes
+
+--- .class #id 
+## Thank You
+
+--- .class #id 
+## References
++ [BuchenKelly96] The Maximum Entropy Distribution of an Asset Inferred from Option Prices (Peter W. Buchen, Michael Kelly)
 
 --- .class #id 
 ## Appendix
@@ -148,10 +155,10 @@ $H(p)=-\int_{0}^{\infty}p(x)\log\left[\frac{p(x)}{q(x)}\right]dx+(1+\lambda_{0})
 From standard calculus, we know that the minimum $\lambda^{*}=(\lambda_{0}^{*},\ldots,\lambda_{M}^{*})$
 is reached when:
 - the gradient (vector of derivatives)$\delta H$ is equal to zero:
-$\delta H(\lambda^{*})=\int_{0}^{\infty}\left[-\log\left[\frac{p(x)}{q(x)}\right]+\lambda_{0}+\sum_{i=1}^{m}\lambda_{i}c_{i}(x)\right]\delta p(x)dx=0$
-(necessary condition)
-- the hessian (matrix of second derivatives) is positive definite (sufficient
-condition)
+    $\delta H(\lambda^{*})=\int_{0}^{\infty}\left[-\log\left[\frac{p(x)}{q(x)}\right]+\lambda_{0}+\sum_{i=1}^{m}\lambda_{i}c_{i}(x)\right]\delta p(x)dx=0$
+    (necessary condition)
+- the hessian (matrix of second derivatives) is positive definite 
+    (sufficient condition)
 
 --- .class #id 
 ## Objective function solution
@@ -168,7 +175,7 @@ $\mu=\int_{0}^{\infty}q(x)\exp\left(\sum_{i=1}^{m}\lambda_{i}c_{i}(x)\right)dx$
 ![](impacts_constraints.png)
 
 --- .class #id 
-## End
+## Thank You
 
 --- .class #id 
 

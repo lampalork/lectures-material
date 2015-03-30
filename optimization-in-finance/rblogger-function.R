@@ -226,6 +226,17 @@ plot(g)
 #install.packages("dplyr")
 library(dplyr)
 View(subset(GOOG,expiry=="2015-09-18"))
+View(filter(GOOG,expiry=="2015-09-18") %>% arrange(-open.interest,strike))
+View(filter(GOOG,expiry=="2015-09-18") %>%  filter(GOOG,open.interest > 100) %>% arrange(-open.interest,strike))
+
+with( filter(GOOG,expiry=="2015-09-18",open.interest > 10) %>% arrange(strike),plot(strike,impvol,type="l"))
+
+g = ggplot(filter(GOOG,expiry=="2015-09-18",open.interest > 10) %>% arrange(strike))
+g = g + geom_line(aes(x = strike, y = impvol, group = type, colour = type))
+plot(g)
+
+str(GOOG)
+
 View(GOOG)
 
 
